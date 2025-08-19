@@ -1,0 +1,98 @@
+{
+  "" : {
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriber-master.dia",
+    "emit-module-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriber-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriber-master-emit-module.dia",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriber-master.swiftdeps"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/AudioCaptureManager.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioCaptureManager~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/AudioSourcePickerView.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/AudioSourcePickerView~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/ContentView.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/NihongoTranscriberApp.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/NihongoTranscriberApp~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/SettingsView.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/TranscriptionManager.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionManager~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/TranscriptionSession.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/TranscriptionSession~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber/WhisperWrapper.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/WhisperWrapper~partial.swiftmodule"
+  },
+  "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/rob/Documents/GitHub/NihongoTranscriber/build/Build/Intermediates.noindex/NihongoTranscriber.build/Debug/NihongoTranscriber.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

@@ -1,0 +1,2 @@
+Target dependency graph (1 target)
+Target 'NihongoTranscriber' in project 'NihongoTranscriber' (no dependencies)
