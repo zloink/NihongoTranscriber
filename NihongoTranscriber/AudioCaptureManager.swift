@@ -2,6 +2,7 @@ import Foundation
 import AVFoundation
 import CoreAudio
 import AudioToolbox
+import os.log
 
 class AudioCaptureManager: NSObject, ObservableObject {
     @Published var hasPermissions = false
@@ -10,28 +11,30 @@ class AudioCaptureManager: NSObject, ObservableObject {
     @Published var availableAudioSources: [AudioSourceInfo] = []
     @Published var selectedAudioSource: AudioSourceInfo?
     
-    // Core Audio properties for system audio capture
-    private var audioUnit: AudioUnit?
-    private var audioFormat: AudioStreamBasicDescription?
+    // Logger for system console
+    private let logger = Logger(subsystem: "com.yourcompany.NihongoTranscriber", category: "AudioCapture")
     
     // Audio processing properties
     private let sampleRate: Double = 16000  // Whisper.cpp recommended sample rate
     private let chunkDuration: TimeInterval = 3.0  // 3-second chunks
     private var audioChunks: [Data] = []
     
-    // Timers
-    private var audioLevelTimer: Timer?
-    private var chunkTimer: Timer?
+    // Core Audio properties
+    private var audioUnit: AudioUnit?
+    private var audioFormat: AudioStreamBasicDescription?
     
     // Callbacks
     var onAudioChunk: ((Data) -> Void)?
     var onAudioLevelChange: ((Float) -> Void)?
     var onError: ((Error) -> Void)?
     
+    // Timers
+    private var audioLevelTimer: Timer?
+    private var chunkTimer: Timer?
+    
     override init() {
         super.init()
-        setupAudioFormat()
-        discoverAudioSources()
+        print("AudioCaptureManager: Initialized")
         requestPermissions()
     }
     
@@ -39,114 +42,136 @@ class AudioCaptureManager: NSObject, ObservableObject {
         stopCapture()
     }
     
-    // MARK: - Audio Format Setup
-    
-    private func setupAudioFormat() {
-        audioFormat = AudioStreamBasicDescription(
-            mSampleRate: sampleRate,
-            mFormatID: kAudioFormatLinearPCM,
-            mFormatFlags: kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
-            mBytesPerPacket: 2,
-            mFramesPerPacket: 1,
-            mBytesPerFrame: 2,
-            mChannelsPerFrame: 1,
-            mBitsPerChannel: 16,
-            mReserved: 0
-        )
-    }
-    
     // MARK: - Permissions
     
     func requestPermissions() {
-        // For system audio capture on macOS, we need to request accessibility permissions
-        // This is a simplified approach - in production you'd want more robust permission handling
-        DispatchQueue.main.async {
-            self.hasPermissions = true
+        print("AudioCaptureManager: Requesting permissions...")
+        // For audio capture on macOS, we need microphone permissions
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        
+        switch status {
+        case .authorized:
+            DispatchQueue.main.async {
+                self.hasPermissions = true
+                print("AudioCaptureManager: Audio permissions already granted")
+            }
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async {
+                    self.hasPermissions = granted
+                    if granted {
+                        print("AudioCaptureManager: Audio permissions granted")
+                    } else {
+                        print("AudioCaptureManager: Audio permissions denied")
+                    }
+                }
+            }
+        case .denied, .restricted:
+            DispatchQueue.main.async {
+                self.hasPermissions = false
+                print("AudioCaptureManager: Audio permissions denied or restricted")
+                self.onError?(AudioCaptureError.noPermissions)
+            }
+        @unknown default:
+            DispatchQueue.main.async {
+                self.hasPermissions = false
+                print("AudioCaptureManager: Unknown audio permission status")
+            }
         }
-    }
-    
-    // MARK: - Audio Source Discovery
-    
-    func discoverAudioSources() {
-        availableAudioSources.removeAll()
-        
-        // System audio output (what you hear)
-        let systemAudio = AudioSourceInfo(
-            id: "system",
-            name: "System Audio Output",
-            type: .systemOutput,
-            description: "Capture audio from applications like WhatsApp, FaceTime, etc."
-        )
-        availableAudioSources.append(systemAudio)
-        
-        // Microphone input
-        let microphone = AudioSourceInfo(
-            id: "microphone",
-            name: "Microphone",
-            type: .microphone,
-            description: "Capture your voice input"
-        )
-        availableAudioSources.append(microphone)
-        
-        // Set default selection
-        selectedAudioSource = systemAudio
     }
     
     // MARK: - Audio Capture Control
     
     func startCapture() {
+        logger.info("🎤 Starting audio capture...")
+        logger.info("🔐 Has permissions: \(self.hasPermissions)")
+        
         guard hasPermissions else {
+            logger.warning("❌ No permissions, requesting...")
+            requestPermissions()
             onError?(AudioCaptureError.noPermissions)
             return
         }
         
         do {
-            try setupSystemAudioCapture()
+            logger.info("⚙️ Setting up audio capture...")
+            try setupAudioCapture()
+            logger.info("✅ Audio capture setup successful")
+            
             isCapturing = true
             startAudioLevelMonitoring()
             startChunkTimer()
             
+            logger.info("🎯 Capture started successfully")
+            
         } catch {
-            print("Failed to start audio capture: \(error)")
+            logger.error("💥 Failed to start audio capture: \(error)")
+            logger.error("📝 Error details: \(error.localizedDescription)")
             onError?(error)
         }
     }
     
     func stopCapture() {
+        print("AudioCaptureManager: Stopping capture...")
         stopAudioLevelMonitoring()
         stopChunkTimer()
         
         if let audioUnit = audioUnit {
             AudioUnitUninitialize(audioUnit)
             AudioComponentInstanceDispose(audioUnit)
-            self.audioUnit = nil
         }
         
-        isCapturing = false
-        audioLevel = 0.0
-        audioChunks.removeAll()
+        Task { @MainActor in
+            isCapturing = false
+            audioLevel = 0.0
+            audioChunks.removeAll()
+        }
+        print("AudioCaptureManager: Capture stopped")
     }
     
     func pauseCapture() {
+        print("AudioCaptureManager: Pausing capture...")
         if let audioUnit = audioUnit {
             AudioOutputUnitStop(audioUnit)
         }
         stopAudioLevelMonitoring()
         stopChunkTimer()
+        print("AudioCaptureManager: Capture paused")
     }
     
     func resumeCapture() {
-        if let audioUnit = audioUnit {
-            AudioOutputUnitStart(audioUnit)
+        print("AudioCaptureManager: Resuming capture...")
+        do {
+            try startAudioUnit()
             startAudioLevelMonitoring()
             startChunkTimer()
+            print("AudioCaptureManager: Capture resumed")
+        } catch {
+            print("AudioCaptureManager: Failed to resume audio capture: \(error)")
         }
     }
     
-    // MARK: - System Audio Capture Setup
+    // MARK: - Audio Capture Setup
     
-    private func setupSystemAudioCapture() throws {
-        // Create an Audio Unit for system audio capture
+    private func setupAudioCapture() throws {
+        print("AudioCaptureManager: Setting up Core Audio...")
+        
+        // Create audio format
+        var audioFormat = AudioStreamBasicDescription(
+            mSampleRate: sampleRate,
+            mFormatID: kAudioFormatLinearPCM,
+            mFormatFlags: kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
+            mBytesPerPacket: 2, // 16-bit = 2 bytes
+            mFramesPerPacket: 1,
+            mBytesPerFrame: 2,
+            mChannelsPerFrame: 1,
+            mBitsPerChannel: 16,
+            mReserved: 0
+        )
+        
+        self.audioFormat = audioFormat
+        
+        // Create audio unit
         var audioComponentDescription = AudioComponentDescription(
             componentType: kAudioUnitType_Output,
             componentSubType: kAudioUnitSubType_HALOutput,
@@ -156,12 +181,14 @@ class AudioCaptureManager: NSObject, ObservableObject {
         )
         
         guard let audioComponent = AudioComponentFindNext(nil, &audioComponentDescription) else {
+            print("AudioCaptureManager: Failed to find audio component")
             throw AudioCaptureError.engineCreationFailed
         }
         
         var audioUnit: AudioUnit?
         var status = AudioComponentInstanceNew(audioComponent, &audioUnit)
         guard status == noErr, let au = audioUnit else {
+            print("AudioCaptureManager: Failed to create audio unit: \(status)")
             throw AudioCaptureError.engineCreationFailed
         }
         
@@ -171,124 +198,156 @@ class AudioCaptureManager: NSObject, ObservableObject {
         var enableIO: UInt32 = 1
         status = AudioUnitSetProperty(au, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, 1, &enableIO, UInt32(MemoryLayout<UInt32>.size))
         guard status == noErr else {
+            print("AudioCaptureManager: Failed to enable input: \(status)")
+            throw AudioCaptureError.engineCreationFailed
+        }
+        
+        // Disable output
+        enableIO = 0
+        status = AudioUnitSetProperty(au, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Output, 0, &enableIO, UInt32(MemoryLayout<UInt32>.size))
+        guard status == noErr else {
+            print("AudioCaptureManager: Failed to disable output: \(status)")
             throw AudioCaptureError.engineCreationFailed
         }
         
         // Set audio format
-        if let format = audioFormat {
-            var mutableFormat = format
-            status = AudioUnitSetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &mutableFormat, UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
-            guard status == noErr else {
-                throw AudioCaptureError.engineCreationFailed
-            }
+        status = AudioUnitSetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 1, &audioFormat, UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
+        guard status == noErr else {
+            print("AudioCaptureManager: Failed to set audio format: \(status)")
+            throw AudioCaptureError.engineCreationFailed
         }
         
         // Set callback
         var callbackStruct = AURenderCallbackStruct(
             inputProc: { (inRefCon, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData) -> OSStatus in
-                let manager = Unmanaged<AudioCaptureManager>.fromOpaque(inRefCon).takeUnretainedValue()
-                return manager.processAudioData(inNumberFrames: inNumberFrames, ioData: ioData)
+                let audioCaptureManager = Unmanaged<AudioCaptureManager>.fromOpaque(inRefCon).takeUnretainedValue()
+                return audioCaptureManager.processAudioData(inNumberFrames: inNumberFrames, ioData: ioData)
             },
             inputProcRefCon: Unmanaged.passUnretained(self).toOpaque()
         )
         
         status = AudioUnitSetProperty(au, kAudioOutputUnitProperty_SetInputCallback, kAudioUnitScope_Global, 0, &callbackStruct, UInt32(MemoryLayout<AURenderCallbackStruct>.size))
         guard status == noErr else {
+            print("AudioCaptureManager: Failed to set callback: \(status)")
             throw AudioCaptureError.engineCreationFailed
         }
         
         // Initialize and start
         status = AudioUnitInitialize(au)
         guard status == noErr else {
+            print("AudioCaptureManager: Failed to initialize audio unit: \(status)")
             throw AudioCaptureError.engineCreationFailed
         }
         
-        status = AudioOutputUnitStart(au)
-        guard status == noErr else {
+        try startAudioUnit()
+        print("AudioCaptureManager: Core Audio setup successful")
+    }
+    
+    private func startAudioUnit() throws {
+        guard let audioUnit = audioUnit else {
             throw AudioCaptureError.engineCreationFailed
         }
+        
+        let status = AudioOutputUnitStart(audioUnit)
+        guard status == noErr else {
+            print("AudioCaptureManager: Failed to start audio unit: \(status)")
+            throw AudioCaptureError.engineCreationFailed
+        }
+        
+        print("AudioCaptureManager: Audio unit started")
     }
     
     // MARK: - Audio Processing Callback
     
     private func processAudioData(inNumberFrames: UInt32, ioData: UnsafeMutablePointer<AudioBufferList>?) -> OSStatus {
-        // For now, we'll simulate audio data since actual system audio capture requires more complex setup
-        // In a full implementation, you'd process the actual audio data from ioData
+        // For now, simulate audio data since we're not actually capturing system audio yet
+        // In a real implementation, this would process the actual audio data
         
-        // Simulate audio level changes for testing
-        let simulatedLevel = Float.random(in: 0.0...0.8)
-        DispatchQueue.main.async {
-            self.audioLevel = simulatedLevel
-        }
-        
-        // Simulate audio chunks for testing
-        let simulatedAudioData = Data(repeating: 0, count: Int(inNumberFrames) * 2) // 16-bit samples
-        audioChunks.append(simulatedAudioData)
+                            // Simulate audio level
+                    let randomLevel = Float.random(in: 0.0...1.0)
+                    Task { @MainActor in
+                        self.audioLevel = randomLevel
+                    }
         
         return noErr
-    }
-    
-    // MARK: - Chunk Management
-    
-    private func startChunkTimer() {
-        chunkTimer = Timer.scheduledTimer(withTimeInterval: chunkDuration, repeats: true) { [weak self] _ in
-            self?.processAudioChunk()
-        }
-    }
-    
-    private func stopChunkTimer() {
-        chunkTimer?.invalidate()
-        chunkTimer = nil
-    }
-    
-    private func processAudioChunk() {
-        guard !audioChunks.isEmpty else { return }
-        
-        // Combine all audio data into one chunk
-        let combinedData = audioChunks.reduce(Data(), +)
-        audioChunks.removeAll()
-        
-        // Send to callback
-        onAudioChunk?(combinedData)
     }
     
     // MARK: - Audio Level Monitoring
     
     private func startAudioLevelMonitoring() {
+        print("AudioCaptureManager: Starting audio level monitoring...")
         audioLevelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            self?.updateAudioLevel()
+            guard let self = self, self.isCapturing else { return }
+            
+            // Audio level is updated in the callback
+            self.onAudioLevelChange?(self.audioLevel)
         }
+        print("AudioCaptureManager: Audio level monitoring started")
     }
     
     private func stopAudioLevelMonitoring() {
+        print("AudioCaptureManager: Stopping audio level monitoring...")
         audioLevelTimer?.invalidate()
         audioLevelTimer = nil
+        Task { @MainActor in
+            audioLevel = 0.0
+        }
+        print("AudioCaptureManager: Audio level monitoring stopped")
     }
     
-    private func updateAudioLevel() {
-        onAudioLevelChange?(audioLevel)
+    private func startChunkTimer() {
+        print("AudioCaptureManager: Starting chunk timer...")
+        chunkTimer = Timer.scheduledTimer(withTimeInterval: chunkDuration, repeats: true) { [weak self] _ in
+            guard let self = self, self.isCapturing else { return }
+            
+            // For now, simulate audio chunks
+            // In a real implementation, you'd collect actual audio data
+            let simulatedAudioData = Data(repeating: 0, count: 1024) // 1KB of silence
+            self.onAudioChunk?(simulatedAudioData)
+        }
+        print("AudioCaptureManager: Chunk timer started")
     }
     
-    // MARK: - Audio Source Selection
+    private func stopChunkTimer() {
+        print("AudioCaptureManager: Stopping chunk timer...")
+        chunkTimer?.invalidate()
+        chunkTimer = nil
+        print("AudioCaptureManager: Chunk timer stopped")
+    }
     
-    func selectAudioSource(_ source: AudioSourceInfo) {
-        selectedAudioSource = source
-        
-        // Restart capture if currently running
-        if isCapturing {
-            stopCapture()
-            startCapture()
+    // MARK: - Audio Source Management
+    
+    func refreshAudioSources() {
+        // This would enumerate available audio devices
+        // For now, just provide a default source
+        Task { @MainActor in
+            availableAudioSources = [
+                AudioSourceInfo(id: "default", name: "Default Audio Input", type: .microphone, description: "Default microphone input")
+            ]
+            selectedAudioSource = availableAudioSources.first
         }
     }
+}
+
+// MARK: - Error Types
+
+enum AudioCaptureError: LocalizedError {
+    case noPermissions
+    case engineCreationFailed
+    case invalidAudioFormat
+    case audioSessionError
     
-    // MARK: - Utility Methods
-    
-    func getAudioLevel() -> Float {
-        return audioLevel
-    }
-    
-    func isAudioPlaying() -> Bool {
-        return audioLevel > 0.01  // Threshold for detecting audio
+    var errorDescription: String? {
+        switch self {
+        case .noPermissions:
+            return "Microphone access is required"
+        case .engineCreationFailed:
+            return "Failed to create audio capture engine"
+        case .invalidAudioFormat:
+            return "Invalid audio format"
+        case .audioSessionError:
+            return "Audio session error"
+        }
     }
 }
 
@@ -314,28 +373,6 @@ enum AudioSourceType {
     case microphone
     case specificApp
     case allAudio
-}
-
-// MARK: - Errors
-
-enum AudioCaptureError: LocalizedError {
-    case noPermissions
-    case engineCreationFailed
-    case invalidAudioFormat
-    case captureFailed
-    
-    var errorDescription: String? {
-        switch self {
-        case .noPermissions:
-            return "Microphone permissions are required"
-        case .engineCreationFailed:
-            return "Failed to create audio engine"
-        case .invalidAudioFormat:
-            return "Invalid audio format"
-        case .captureFailed:
-            return "Audio capture failed"
-        }
-    }
 }
 
 // MARK: - Extensions

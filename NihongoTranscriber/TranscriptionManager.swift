@@ -1,8 +1,9 @@
 import Foundation
 import Combine
 import SwiftUI
+import os.log
 
-class TranscriptionManager: ObservableObject, Sendable {
+class TranscriptionManager: ObservableObject {
     @Published var isRecording = false
     @Published var isPaused = false
     @Published var currentSession: TranscriptionSession?
@@ -13,6 +14,9 @@ class TranscriptionManager: ObservableObject, Sendable {
     // Settings
     @Published var settings = TranscriptionSettings.default
     @Published var showTranslation = false
+    
+    // Logger for system console
+    private let logger = Logger(subsystem: "com.yourcompany.NihongoTranscriber", category: "TranscriptionManager")
     
     // Audio processing
     private var audioCaptureManager: AudioCaptureManager?
@@ -60,17 +64,31 @@ class TranscriptionManager: ObservableObject, Sendable {
     
     // MARK: - Recording Control
     
+    // 🔥 DEBUG: Get Whisper paths for UI debugging
+    func getWhisperDebugPaths() -> [String: String] {
+        return whisperWrapper.getDebugPaths()
+    }
+    
     func startRecording() {
-        guard !isRecording else { return }
+        logger.info("🔥 START RECORDING BUTTON PRESSED!")
+        
+        guard !isRecording else { 
+            logger.warning("❌ Already recording, ignoring")
+            return 
+        }
+        
+        logger.info("📝 Creating new transcription session...")
         
         // Create new session
         let session = TranscriptionSession()
         currentSession = session
         sessionStartTime = Date()
         
+        logger.info("🔧 Setting up audio capture...")
         // Setup audio capture
         setupAudioCapture()
         
+        logger.info("🎤 Starting audio capture manager...")
         // Start recording
         audioCaptureManager?.startCapture()
         
@@ -78,12 +96,14 @@ class TranscriptionManager: ObservableObject, Sendable {
         isPaused = false
         lastError = nil
         
+        logger.info("✅ Recording state set to TRUE")
+        
         // Start auto-save timer if enabled
         if settings.autoSave {
             startAutoSaveTimer()
         }
         
-        print("Started transcription session: \(session.id)")
+        logger.info("🎯 Started transcription session: \(session.id)")
     }
     
     func stopRecording() {
@@ -126,21 +146,24 @@ class TranscriptionManager: ObservableObject, Sendable {
     // MARK: - Audio Capture Setup
     
     private func setupAudioCapture() {
-        audioCaptureManager = AudioCaptureManager()
-        
-        // Setup callbacks
-        audioCaptureManager?.onAudioChunk = { [weak self] audioData in
-            self?.processAudioChunk(audioData)
-        }
-        
-        audioCaptureManager?.onAudioLevelChange = { [weak self] level in
-            // Audio level updates are handled by the UI
-        }
-        
-        audioCaptureManager?.onError = { [weak self] error in
-            DispatchQueue.main.async {
-                self?.lastError = error.localizedDescription
-                self?.stopRecording()
+        // Only create AudioCaptureManager once
+        if audioCaptureManager == nil {
+            audioCaptureManager = AudioCaptureManager()
+            
+            // Setup callbacks
+            audioCaptureManager?.onAudioChunk = { [weak self] audioData in
+                self?.processAudioChunk(audioData)
+            }
+            
+            audioCaptureManager?.onAudioLevelChange = { [weak self] level in
+                // Audio level updates are handled by the UI
+            }
+            
+            audioCaptureManager?.onError = { [weak self] error in
+                Task { @MainActor in
+                    self?.lastError = error.localizedDescription
+                    self?.stopRecording()
+                }
             }
         }
     }
@@ -150,7 +173,9 @@ class TranscriptionManager: ObservableObject, Sendable {
     private func processAudioChunk(_ audioData: Data) {
         guard isRecording && !isPaused else { return }
         
-        print("Processing audio chunk of size: \(audioData.count) bytes")
+        print("TranscriptionManager: Processing audio chunk of size: \(audioData.count) bytes")
+        print("TranscriptionManager: Current session: \(currentSession?.id.uuidString ?? "nil")")
+        print("TranscriptionManager: Is recording: \(isRecording), Is paused: \(isPaused)")
         
         // Store audio chunk
         audioChunks.append(audioData)
@@ -169,7 +194,7 @@ class TranscriptionManager: ObservableObject, Sendable {
         
         print("Starting Whisper transcription for \(audioData.count) bytes of audio")
         
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.isProcessing = true
         }
         
@@ -200,16 +225,18 @@ class TranscriptionManager: ObservableObject, Sendable {
             }
             
             // Update the current session with the modified session
-            currentSession = session
+            await MainActor.run {
+                currentSession = session
+            }
             
         } catch {
             print("Transcription error: \(error)")
-            DispatchQueue.main.async {
-                self.lastError = "Transcription failed: \(error.localizedDescription)"
-            }
+                    await MainActor.run {
+            self.lastError = "Transcription failed: \(error.localizedDescription)"
+        }
         }
         
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.isProcessing = false
         }
     }

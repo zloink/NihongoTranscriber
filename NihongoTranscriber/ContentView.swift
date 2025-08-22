@@ -9,6 +9,63 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // 🔥 DEBUG: This is our updated code! 🔥
+            VStack(spacing: 8) {
+                Text("🔥 UPDATED CODE IS RUNNING! 🔥")
+                    .font(.title)
+                    .foregroundColor(.red)
+                    .padding()
+                    .background(Color.yellow)
+                    .cornerRadius(10)
+                
+                // 🎯 LIVE DEBUG STATUS 🎯
+                VStack(spacing: 4) {
+                    Text("🎯 LIVE DEBUG STATUS 🎯")
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                    
+                    Text("Recording: \(transcriptionManager.isRecording ? "YES" : "NO")")
+                        .foregroundColor(transcriptionManager.isRecording ? .green : .red)
+                    
+                    Text("Permissions: \(audioCaptureManager.hasPermissions ? "YES" : "NO")")
+                        .foregroundColor(audioCaptureManager.hasPermissions ? .green : .red)
+                    
+                    Text("Audio Level: \(String(format: "%.3f", audioCaptureManager.audioLevel))")
+                        .foregroundColor(.orange)
+                    
+                    Text("Session Count: \(transcriptionManager.currentSession?.transcriptions.count ?? 0)")
+                        .foregroundColor(.purple)
+                    
+                    // 🔥 WHISPER PATHS DEBUG 🔥
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("🔥 WHISPER PATHS:")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                        
+                        let paths = transcriptionManager.getWhisperDebugPaths()
+                        Text("CLI: \(paths["whisperCLIPath"] ?? "N/A")")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                        Text("Model: \(paths["fullModelPath"] ?? "N/A")")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                        Text("CLI Exists: \(paths["cliExists"] ?? "N/A")")
+                            .font(.caption2)
+                            .foregroundColor(paths["cliExists"] == "true" ? .green : .red)
+                        Text("Model Exists: \(paths["modelExists"] ?? "N/A")")
+                            .font(.caption2)
+                            .foregroundColor(paths["modelExists"] == "true" ? .green : .red)
+                    }
+                    .padding(4)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(4)
+                }
+                .padding()
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(8)
+                .border(Color.blue, width: 2)
+            }
+            
             // Header with controls
             headerView
             

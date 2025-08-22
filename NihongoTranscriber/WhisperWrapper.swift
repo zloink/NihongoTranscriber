@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-class WhisperWrapper: ObservableObject, Sendable {
+class WhisperWrapper: ObservableObject {
     @Published var isProcessing = false
     @Published var currentModel = "ggml-medium"
     @Published var availableModels: [String] = []
@@ -18,8 +18,9 @@ class WhisperWrapper: ObservableObject, Sendable {
     init() {
         // Try to find whisper.cpp in common locations
         let possiblePaths = [
-            "./whisper.cpp/build/bin/whisper-cli",
+            "/Users/rob/Documents/GitHub/whisper.cpp/build/bin/whisper-cli",
             "../whisper.cpp/build/bin/whisper-cli",
+            "./whisper.cpp/build/bin/whisper-cli",
             "~/whisper.cpp/build/bin/whisper-cli",
             "/usr/local/bin/whisper-cli"
         ]
@@ -38,8 +39,9 @@ class WhisperWrapper: ObservableObject, Sendable {
         
         // Try to find models directory
         let possibleModelPaths = [
-            "./whisper.cpp/models",
+            "/Users/rob/Documents/GitHub/whisper.cpp/models",
             "../whisper.cpp/models",
+            "./whisper.cpp/models",
             "~/whisper.cpp/models",
             "/usr/local/share/whisper/models"
         ]
@@ -58,6 +60,17 @@ class WhisperWrapper: ObservableObject, Sendable {
         print("WhisperWrapper initialized with:")
         print("  CLI Path: \(self.whisperCLIPath)")
         print("  Models Path: \(self.modelsDirectory)")
+        print("  Current working directory: \(FileManager.default.currentDirectoryPath)")
+        print("  CLI Path exists: \(FileManager.default.fileExists(atPath: self.whisperCLIPath))")
+        print("  Models Path exists: \(FileManager.default.fileExists(atPath: self.modelsDirectory))")
+        
+        // 🔥 DEBUG: Add this to ContentView debug panel
+        print("🔥 DEBUG PATHS:")
+        print("  whisperCLIPath: \(self.whisperCLIPath)")
+        print("  modelsDirectory: \(self.modelsDirectory)")
+        print("  currentModel: \(self.currentModel)")
+        print("  Full model path: \(self.modelsDirectory)/\(self.currentModel)")
+        print("  Full model path exists: \(FileManager.default.fileExists(atPath: "\(self.modelsDirectory)/\(self.currentModel)"))")
         
         discoverAvailableModels()
     }
@@ -67,6 +80,18 @@ class WhisperWrapper: ObservableObject, Sendable {
     }
     
     // MARK: - Model Management
+    
+    // 🔥 DEBUG: Public method to get path info for UI
+    func getDebugPaths() -> [String: String] {
+        return [
+            "whisperCLIPath": whisperCLIPath,
+            "modelsDirectory": modelsDirectory,
+            "currentModel": currentModel,
+            "fullModelPath": "\(modelsDirectory)/\(currentModel)",
+            "cliExists": "\(FileManager.default.fileExists(atPath: whisperCLIPath))",
+            "modelExists": "\(FileManager.default.fileExists(atPath: "\(modelsDirectory)/\(currentModel)"))"
+        ]
+    }
     
     private func discoverAvailableModels() {
         let fileManager = FileManager.default
@@ -128,12 +153,29 @@ class WhisperWrapper: ObservableObject, Sendable {
     }
     
     private func processAudioWithWhisper(_ audioData: Data, language: String, translate: Bool) throws -> TranscriptionResult {
+        print("WhisperWrapper: Starting audio processing...")
+        print("WhisperWrapper: Audio data size: \(audioData.count) bytes")
+        print("WhisperWrapper: Language: \(language)")
+        print("WhisperWrapper: Translate: \(translate)")
+        print("WhisperWrapper: Using model: \(currentModel)")
+        
         // Create temporary audio file
         let tempFile = try createTemporaryAudioFile(from: audioData)
         defer { cleanupTemporaryFile(tempFile) }
         
+        print("WhisperWrapper: Created temp file: \(tempFile.path)")
+        
         // Build whisper command
         var command = [whisperCLIPath, "-m", "\(modelsDirectory)/\(currentModel)", "-f", tempFile.path]
+        
+        // 🔥 DEBUG: Show exact command components
+        print("🔥 DEBUG COMMAND BUILDING:")
+        print("  whisperCLIPath: '\(whisperCLIPath)'")
+        print("  modelsDirectory: '\(modelsDirectory)'")
+        print("  currentModel: '\(currentModel)'")
+        print("  fullModelPath: '\(modelsDirectory)/\(currentModel)'")
+        print("  tempFile.path: '\(tempFile.path)'")
+        print("  command array: \(command)")
         
         // Language settings
         if !language.isEmpty {
@@ -149,8 +191,12 @@ class WhisperWrapper: ObservableObject, Sendable {
         command.append(contentsOf: ["--output-format", "json"])
         command.append("--no-timestamps")
         
+        print("WhisperWrapper: Executing command: \(command.joined(separator: " "))")
+        
         // Execute whisper
         let result = try executeWhisperCommand(command)
+        
+        print("WhisperWrapper: Raw result: \(result)")
         
         // Parse result
         return try parseWhisperOutput(result)

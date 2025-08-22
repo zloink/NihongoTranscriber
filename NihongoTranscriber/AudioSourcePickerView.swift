@@ -22,12 +22,6 @@ struct AudioSourcePickerView: View {
                             isSelected: selectedSource == source,
                             onSelect: {
                                 selectedSource = source
-                                audioCaptureManager.selectAudioSource(AudioSourceInfo(
-                                    id: source.rawValue,
-                                    name: source.displayName,
-                                    type: mapAudioSourceToType(source),
-                                    description: source.description
-                                ))
                                 dismiss()
                             }
                         )
@@ -62,19 +56,6 @@ struct AudioSourcePickerView: View {
                     }
                 }
             }
-        }
-    }
-    
-    private func mapAudioSourceToType(_ source: AudioSource) -> AudioSourceType {
-        switch source {
-        case .systemAudio:
-            return .systemOutput
-        case .specificApp:
-            return .specificApp
-        case .microphone:
-            return .microphone
-        case .allAudio:
-            return .allAudio
         }
     }
 }
