@@ -6,5 +6,41 @@
 	<date>2025-08-19T02:25:48Z</date>
 	<key>WorkspacePath</key>
 	<string>/Users/rob/Documents/GitHub/NihongoTranscriber/NihongoTranscriber.xcodeproj</string>
+    
+    <!-- Microphone Access -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Nihongo Transcriber needs microphone access to capture and transcribe Japanese audio from conversations. This helps you learn Japanese by providing written transcriptions of spoken content.</string>
+    
+    <!-- Screen Recording is required for system audio capture -->
+    <key>NSScreenCaptureDescription</key>
+    <string>Nihongo Transcriber needs screen recording permission to capture system audio from applications like WhatsApp, FaceTime, and other communication apps. This allows transcription of Japanese conversations from these apps.</string>
+    
+    <!-- Camera access (if ever needed for video calls) -->
+    <key>NSCameraUsageDescription</key>
+    <string>Nihongo Transcriber may need camera access for video call transcription features.</string>
+    
+    <!-- Speech Recognition (if using built-in Speech framework) -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Nihongo Transcriber uses speech recognition to provide accurate Japanese transcriptions.</string>
+    
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <!-- Add any external domains you need to connect to -->
+        </dict>
+    </dict>
+    
+    <!-- App Category -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
+    
+    <!-- Required for hardened runtime -->
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+
 </dict>
 </plist>
