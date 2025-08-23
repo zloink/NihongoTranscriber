@@ -10,6 +10,208 @@ class AudioCaptureManager: NSObject, ObservableObject {
     @Published var audioLevel: Float = 0.0
     @Published var availableAudioSources: [AudioSourceInfo] = []
     @Published var selectedAudioSource: AudioSourceInfo?
+
+// MARK: - Improved Audio Capture Setup Methods
+// Add these methods to your AudioCaptureManager class
+
+private func setupSystemAudioCapture() throws {
+    print("AudioCaptureManager: Setting up system audio capture...")
+    
+    // Get the default output device (what the system is playing to)
+    var deviceID: AudioDeviceID = kAudioObjectUnknown
+    var dataSize = UInt32(MemoryLayout<AudioDeviceID>.size)
+    
+    var address = AudioObjectPropertyAddress(
+        mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+        mScope: kAudioObjectPropertyScopeGlobal,
+        mElement: kAudioObjectPropertyElementMain
+    )
+    
+    let status = AudioObjectGetPropertyData(
+        AudioObjectID(kAudioObjectSystemObject),
+        &address,
+        0,
+        nil,
+        &dataSize,
+        &deviceID
+    )
+    
+    guard status == noErr && deviceID != kAudioObjectUnknown else {
+        print("AudioCaptureManager: Failed to get default output device")
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    print("AudioCaptureManager: Found default output device: \(deviceID)")
+    
+    // Try to set up system audio capture
+    try setupAudioUnitWithDevice(deviceID)
+}
+
+private func setupAudioUnitWithDevice(_ deviceID: AudioDeviceID) throws {
+    print("AudioCaptureManager: Setting up Audio Unit with device: \(deviceID)")
+    
+    // Create audio format for 16kHz mono
+    var audioFormat = AudioStreamBasicDescription(
+        mSampleRate: sampleRate,
+        mFormatID: kAudioFormatLinearPCM,
+        mFormatFlags: kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
+        mBytesPerPacket: 2, // 16-bit = 2 bytes
+        mFramesPerPacket: 1,
+        mBytesPerFrame: 2,
+        mChannelsPerFrame: 1,
+        mBitsPerChannel: 16,
+        mReserved: 0
+    )
+    
+    self.audioFormat = audioFormat
+    
+    // Create audio unit component description
+    var audioComponentDescription = AudioComponentDescription(
+        componentType: kAudioUnitType_Output,
+        componentSubType: kAudioUnitSubType_HALOutput,
+        componentManufacturer: kAudioUnitManufacturer_Apple,
+        componentFlags: 0,
+        componentFlagsMask: 0
+    )
+    
+    guard let audioComponent = AudioComponentFindNext(nil, &audioComponentDescription) else {
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    var audioUnit: AudioUnit?
+    var status = AudioComponentInstanceNew(audioComponent, &audioUnit)
+    guard status == noErr, let au = audioUnit else {
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    self.audioUnit = au
+    
+    // Enable input on the audio unit
+    var enableIO: UInt32 = 1
+    status = AudioUnitSetProperty(au,
+                                 kAudioOutputUnitProperty_EnableIO,
+                                 kAudioUnitScope_Input,
+                                 1,
+                                 &enableIO,
+                                 UInt32(MemoryLayout<UInt32>.size))
+    guard status == noErr else {
+        print("AudioCaptureManager: Failed to enable input: \(status)")
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    // Disable output
+    enableIO = 0
+    status = AudioUnitSetProperty(au,
+                                 kAudioOutputUnitProperty_EnableIO,
+                                 kAudioUnitScope_Output,
+                                 0,
+                                 &enableIO,
+                                 UInt32(MemoryLayout<UInt32>.size))
+    guard status == noErr else {
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    // Set the device to capture from
+    status = AudioUnitSetProperty(au,
+                                 kAudioOutputUnitProperty_CurrentDevice,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &deviceID,
+                                 UInt32(MemoryLayout<AudioDeviceID>.size))
+    
+    if status != noErr {
+        print("AudioCaptureManager: Warning - Could not set specific device: \(status)")
+        // Continue anyway - it might still work with default device
+    }
+    
+    // Set the audio format
+    status = AudioUnitSetProperty(au,
+                                 kAudioUnitProperty_StreamFormat,
+                                 kAudioUnitScope_Output,
+                                 1,
+                                 &audioFormat,
+                                 UInt32(MemoryLayout<AudioStreamBasicDescription>.size))
+    guard status == noErr else {
+        print("AudioCaptureManager: Failed to set audio format: \(status)")
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    // Set up the input callback
+    var callbackStruct = AURenderCallbackStruct(
+        inputProc: { (inRefCon, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, ioData) -> OSStatus in
+            let audioCaptureManager = Unmanaged<AudioCaptureManager>.fromOpaque(inRefCon).takeUnretainedValue()
+            return audioCaptureManager.processAudioData(inNumberFrames: inNumberFrames, ioData: ioData)
+        },
+        inputProcRefCon: Unmanaged.passUnretained(self).toOpaque()
+    )
+    
+    status = AudioUnitSetProperty(au,
+                                 kAudioOutputUnitProperty_SetInputCallback,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &callbackStruct,
+                                 UInt32(MemoryLayout<AURenderCallbackStruct>.size))
+    guard status == noErr else {
+        print("AudioCaptureManager: Failed to set input callback: \(status)")
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    // Initialize the audio unit
+    status = AudioUnitInitialize(au)
+    guard status == noErr else {
+        print("AudioCaptureManager: Failed to initialize audio unit: \(status)")
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    print("AudioCaptureManager: Audio Unit setup complete")
+}
+
+// Updated main setup method
+private func setupAudioCapture() throws {
+    print("AudioCaptureManager: Setting up audio capture...")
+    
+    // Try system audio capture first, fallback to microphone
+    do {
+        try setupSystemAudioCapture()
+        print("AudioCaptureManager: System audio capture setup successful")
+    } catch {
+        print("AudioCaptureManager: System audio capture failed, trying microphone: \(error)")
+        try setupMicrophoneCapture()
+    }
+    
+    try startAudioUnit()
+}
+
+private func setupMicrophoneCapture() throws {
+    // Fallback to microphone capture if system audio fails
+    print("AudioCaptureManager: Setting up microphone capture...")
+    
+    // Use default input device (microphone)
+    var deviceID: AudioDeviceID = kAudioObjectUnknown
+    var dataSize = UInt32(MemoryLayout<AudioDeviceID>.size)
+    
+    var address = AudioObjectPropertyAddress(
+        mSelector: kAudioHardwarePropertyDefaultInputDevice,
+        mScope: kAudioObjectPropertyScopeGlobal,
+        mElement: kAudioObjectPropertyElementMain
+    )
+    
+    let status = AudioObjectGetPropertyData(
+        AudioObjectID(kAudioObjectSystemObject),
+        &address,
+        0,
+        nil,
+        &dataSize,
+        &deviceID
+    )
+    
+    guard status == noErr && deviceID != kAudioObjectUnknown else {
+        throw AudioCaptureError.engineCreationFailed
+    }
+    
+    try setupAudioUnitWithDevice(deviceID)
+}
+
     
     // Logger for system console
     private let logger = Logger(subsystem: "com.yourcompany.NihongoTranscriber", category: "AudioCapture")
